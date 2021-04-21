@@ -36,10 +36,12 @@
     {
         "Name": "case 4",
         "Features":  [
-            { "Location": "Famly room" },
+            { "Location": "Family room" },
             { "Tone": "Muted" }
         ],
         "Expected": "Comfortable Sample"
     }
 ]
+
+
 
