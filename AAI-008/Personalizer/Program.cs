@@ -18,43 +18,27 @@ namespace Personalizer
 
         public Program()
         {
-            config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
-            Personalizer = new PersonalizerService(
-               GetConfigString("PersonalizerEndpointKey"),
-               GetConfigString("PersonalizerResourceName")
-            );
+
         }
 
         public void LoadFeatures(string featureFile)
         {
-            string input = File.ReadAllText(featureFile);
-            if (input != null && input.Length > 0)
-            {
-                Personalizer.Features = JsonSerializer.Deserialize<PersonalizationFeature[]>(input);
-            }
+
         }
 
         public void LoadActions(string actionFile)
         {
-            string input = File.ReadAllText(actionFile);
-            if (input != null && input.Length > 0)
-            {
-                Personalizer.Actions = JsonSerializer.Deserialize<List<RankableAction>>(input);
-            }
+
         }
+
         public void InteractiveTraining(string[] select, string[] ignore)
         {
-            Personalizer.InteractiveTraining(select, ignore);
+
         }
 
         public void TrainingFile(string trainingFile)
         {
-            string input = File.ReadAllText(trainingFile);
-            if (input != null && input.Length > 0)
-            {
-                TrainingCase[] trainingData = JsonSerializer.Deserialize<TrainingCase[]>(input);
-                Personalizer.Train(trainingData);
-            }
+
         }
 
 
@@ -82,7 +66,7 @@ namespace Personalizer
             };
 
 
-            rootCommand.Description = "Manage a Question and Answer knowledge base hosted in Azure.";
+            rootCommand.Description = "Train a Personalizer Service hosted in Azure.";
 
             rootCommand.Handler = CommandHandler.Create<string, string, string[], string[], string>((actions, features, exclude, select, training) =>
             {
