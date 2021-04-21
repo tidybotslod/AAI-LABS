@@ -82,7 +82,7 @@ namespace Personalizer
             };
 
 
-            rootCommand.Description = "Manage a Question and Answer knowledge base hosted in Azure.";
+            rootCommand.Description = "Train a Personalizer Service hosted in Azure.";
 
             rootCommand.Handler = CommandHandler.Create<string, string, string[], string[], string>((actions, features, exclude, select, training) =>
             {
