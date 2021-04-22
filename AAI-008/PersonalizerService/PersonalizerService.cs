@@ -11,6 +11,7 @@ namespace AAI
         {
             if (cases != null)
             {
+                Console.WriteLine($"Start training from file:");
                 foreach (TrainingCase trainingCase in cases)
                 {
                     string lessonId = Guid.NewGuid().ToString();
@@ -22,6 +23,7 @@ namespace AAI
                         reward = 1.0;
                     }
                     Client.Reward(response.EventId, new RewardRequest(reward));
+                    Console.WriteLine($"{trainingCase.Name} selected {response.RewardActionId}: Reward = {reward}";
                 }
             }
         }
