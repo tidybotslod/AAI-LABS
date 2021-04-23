@@ -193,7 +193,7 @@ namespace AAI
 #endif
 #if (TestAsk)
         [TestMethod()]
-        public void TestCreate()
+        public void TestAsk()
         {
             try
             {
@@ -253,7 +253,7 @@ namespace AAI
 #endif
 #if (TestCrud)
         [TestMethod()]
-        public void CrudTest()
+        public void TestCrud()
         {
             try
             {
