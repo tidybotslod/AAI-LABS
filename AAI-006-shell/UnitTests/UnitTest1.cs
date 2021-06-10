@@ -1,8 +1,13 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
+
+using AAI;
 
 namespace UnitTests
 {
@@ -10,6 +15,17 @@ namespace UnitTests
     public class UnitTest1
     {
         private static string url;
+        public static QnAService service;
+
+        private static string ConfigurationValue(IConfiguration config, string name)
+        {
+            string value = config[name];
+            if (value != null && value.Length == 0)
+            {
+                value = null;
+            }
+            return value;
+        }
 
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)
