@@ -9,11 +9,29 @@ namespace UnitTests
     [TestClass]
     public class UnitTest1
     {
+        private static string url;
+
+        [AssemblyInitialize]
+        public static void AssemblyInit(TestContext context)
+        {
+            IConfiguration config; // Load configuration data found in appsettings.json, need Azure authoring key and resource name to build URL to azure.
+            config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+            service = new QnAService
+            {
+                AuthoringKey = ConfigurationValue(config, "AuthoringKey"),
+                ResourceName = ConfigurationValue(config, "ResourceName"),
+                ApplicationName = ConfigurationValue(config, "ApplicationName"),
+                KnowledgeBaseID = ConfigurationValue(config, "KnowledgeBaseID"),
+                QueryEndpointKey = ConfigurationValue(config, "QueryEndpointKey")
+            };
+
+            // set up function defaults
+            url = ConfigurationValue(config, "FunctionUrl");
+        }
         [TestMethod]
         public async Task LocalPostTest()
         {
-            string url = "http://localhost:7071/api/KeySentiments";
-            //string url = "<remote function site - from portal>/api/KeySentiments";
+            //string url = "<remote function site - from portal>/api/CustomerSupportService";
             string test = "There is a happy dog barking in the forground.";
             string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog barking\", \"forground\"";
             Uri site = new Uri(url);
@@ -28,8 +46,7 @@ namespace UnitTests
         [TestMethod]
         public async Task LocalStreamTest()
         {
-            string url = "http://localhost:7071/api/KeySentiments";
-            //string url = "<remote function site - from portal>/api/KeySentiments";
+            //string url = "<remote function site - from portal>/api/CustomerSupportService";
             string[] test =
             {
                 "There is a happy dog barking in the foreground. ",
@@ -52,7 +69,7 @@ namespace UnitTests
                 }
                 writer.Flush();
                 input.Seek(0, SeekOrigin.Begin);
-                // 
+                //
                 // Create message, attach stream to content, send, and only wait for the header of the returned message.
                 HttpRequestMessage request = new HttpRequestMessage();
                 request.Content = new StreamContent(input);
