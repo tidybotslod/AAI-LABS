@@ -15,8 +15,8 @@ namespace UnitTests
     public class UnitTest1
     {
         private static string url;
-        public static QnAService service;
-
+        private static QnAService service;
+        private static KeySentiments analyzer;
         private static string ConfigurationValue(IConfiguration config, string name)
         {
             string value = config[name];
@@ -44,12 +44,75 @@ namespace UnitTests
             // set up function defaults
             url = ConfigurationValue(config, "FunctionUrl");
         }
+
+#if (TextAnalyzer)
+        [TestMethod]
+        public void PerformSentimentTest()
+        {
+            string input = "The quick brown fox jumps over the lazy dog";
+            string answer = "Negative, 0.00, 0.99, 0.01, \"quick brown fox jumps\", \"lazy dog\"" ;
+            using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+            {
+                System.IO.StreamWriter writer = new System.IO.StreamWriter(memory, Console.OutputEncoding);
+                analyzer.Sentiment(input, writer);
+                memory.Seek(0, System.IO.SeekOrigin.Begin);
+                System.IO.StreamReader reader = new System.IO.StreamReader(memory, Console.InputEncoding);
+                string result = reader.ReadLine();
+                Assert.AreEqual(answer, result);
+            }
+        }
+#endif
+#if (CreateFAQ)
+        [TestMethod()]
+        public void CreateFAQ()
+        {
+            try
+            {
+                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
+                Task.Run(async () => { Assert.IsTrue(await PublishDatabase()); }).Wait();
+                Console.WriteLine($"Knowledge base id: {service.KnowledgeBaseID}");
+                Console.WriteLine($"Query end point: {service.QueryEndpointKey}");
+            }
+            finally
+            {
+                Console.WriteLine("Created and published FAQ for Customer Support");
+            }
+        }
+        //
+        // Create QnA knowledge base.
+        // Will contain one Question and Answer, the answer has temporary text that will be removed in the update test.
+        private async Task<bool> CreateDatabase()
+        {
+            Guid name = Guid.NewGuid();
+            var create = new CreateKbDTO
+            {
+                Name = $"{name} Custom Support KB",
+                QnaList = QnAFile.LoadCSV("..\\..\\..\\..\\Data\\full-faq.csv")
+            };
+
+            var (status, id) = await service.CreateQnA(create);
+            Assert.AreEqual(OperationStateType.Succeeded, status);
+            Assert.IsNotNull(id);
+            service.KnowledgeBaseID = id;
+            await service.Publish();
+            return true;
+        }
+        //
+        // Publish the QnA knowledge base.
+        private async Task<bool> PublishDatabase()
+        {
+            await service.Publish();
+            return true;
+        }
+#endif
+#if (LocalFunction)
+
         [TestMethod]
         public async Task LocalPostTest()
         {
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
             string test = "There is a happy dog barking in the forground.";
-            string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog barking\", \"forground\"";
+            string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog\", \"forground\"";
             Uri site = new Uri(url);
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(test));
@@ -59,6 +122,8 @@ namespace UnitTests
             data = data.Trim(new char[] { '\r', '\n' });
             Assert.AreEqual(answer, data);
         }
+
+
         [TestMethod]
         public async Task LocalStreamTest()
         {
@@ -70,8 +135,8 @@ namespace UnitTests
             };
             string[] answer =
             {
-                "Neutral, 0.28, 0.06, 0.66, \"happy dog barking\", \"foreground\"",
-                "Negative, 0.00, 1.00, 0.00, \"ACME radio\", \"packaging\", \"customer\", \"problems\""
+                "Neutral, 0.28, 0.06, 0.66, \"happy dog\", \"foreground\"",
+                "Negative, 0.00, 1.00, 0.00, \"ACME radio side\", \"problems\", \"packaging\", \"customer\""
             };
             HttpClient client = new HttpClient();
             using (Stream input = new MemoryStream())
@@ -109,5 +174,6 @@ namespace UnitTests
                 Assert.AreEqual(answer.Length, lineNumber);
             }
         }
+#endif
     }
 }

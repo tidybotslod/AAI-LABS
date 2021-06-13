@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\QnA\QnA.csproj" />
+    <ProjectReference Include="..\AAI\AAI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
