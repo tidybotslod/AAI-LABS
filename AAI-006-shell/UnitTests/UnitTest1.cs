@@ -32,6 +32,13 @@ namespace UnitTests
         {
             IConfiguration config; // Load configuration data found in appsettings.json, need Azure authoring key and resource name to build URL to azure.
             config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+            // text analyzer
+            analyzer = new KeySentiments
+            {
+                Key = ConfigurationValue(config, "TextAnalyticsKey"),
+                ResourceName = ConfigurationValue(config, "TextAnalyticsResourceName")
+            };
+            // setup QnA Maker service
             service = new QnAService
             {
                 AuthoringKey = ConfigurationValue(config, "AuthoringKey"),
@@ -40,7 +47,6 @@ namespace UnitTests
                 KnowledgeBaseID = ConfigurationValue(config, "KnowledgeBaseID"),
                 QueryEndpointKey = ConfigurationValue(config, "QueryEndpointKey")
             };
-
             // set up function defaults
             url = ConfigurationValue(config, "FunctionUrl");
         }
