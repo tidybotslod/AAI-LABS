@@ -124,7 +124,8 @@ namespace AAI
 
             if (operation.OperationState != OperationStateType.Succeeded)
             {
-                throw new Exception($"Operation {operation.OperationId} failed to completed.");
+                string message =  operation.ErrorResponse.Error.Message ?? "No additional information";
+                throw new Exception($"Operation {operation.OperationId} failed to completed. Error: {message}");
             }
             return operation;
         }
