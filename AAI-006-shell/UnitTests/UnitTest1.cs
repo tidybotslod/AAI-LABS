@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
+using Newtonsoft.Json;
 
 using AAI;
 
@@ -118,14 +119,25 @@ namespace UnitTests
 #endif
 #if (LocalFunction)
 
+        class CustomerSupportRequest
+        {
+            public string Rating;
+            public string Question;
+        }
+        class CustomerSupportResponse
+        {
+            public string Sentiment;
+            public QnASearchResultList Answer;
+        }
         [TestMethod]
         public async Task RatingTest()
         {
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
-            var test = new
+            CustomerSupportRequest test = new CustomerSupportRequest
             {
                 Rating = "There is a happy dog barking in the forground."
-            }
+            };
+
             string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog\", \"forground\"";
             Uri site = new Uri(url);
             var client = new HttpClient();
@@ -133,26 +145,37 @@ namespace UnitTests
             var data = await response.Content.ReadAsStringAsync();
             //
             // Reading as a string instead of reading as a line leaves extra characters on the end, remove them.
-            var result  = JsonConvert.DeserializeAnonymousType(data);
-            string sentiment = result.Rating.Trim(new char[] { '\r', '\n' });
+            var resultType = new
+            {
+                string Sentiment;
+                QnASearchResultList Answer;
+            };
+            var result  = JsonConvert.DeserializeObject<CustomerSupportResponse>(data);
+            string sentiment = result.Sentiment.Trim(new char[] { '\r', '\n' });
             Assert.AreEqual(answer, sentiment);
         }
 
         [TestMethod]
-        public async Task RatingTest()
+        public async Task QuestionTest()
         {
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
-            var test = new
+            var CustomerSupportRequest = new CustomerSupportRequest
             {
                 Question = "What perks do I get for shopping with you"
-            }
+            };
+
             Uri site = new Uri(url);
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
             var data = await response.Content.ReadAsStringAsync();
+            var resultType = new
+            {
+                string Sentiment;
+                QnASearchResultList Answer;
+            };
             //
             // Reading as a string instead of reading as a line leaves extra characters on the end, remove them.
-            var result  = JsonConvert.DeserializeAnonymousType(data);
+            var result  = JsonConvert.DeserializeObject<CustomerSupportResponse>(data);
             Assert.IsNotNull(result);
 
             var answer = result.Question.answer;
