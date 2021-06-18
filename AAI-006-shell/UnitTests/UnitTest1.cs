@@ -121,11 +121,21 @@ namespace UnitTests
 
         class CustomerSupportRequest
         {
+            public CustomerSupportRequest()
+            {
+                Rating = null;
+                Question = null;
+            }
             public string Rating;
             public string Question;
         }
         class CustomerSupportResponse
         {
+            public CustomerSupportResponse()
+            {
+                Sentiment = null;
+                Answer = null;
+            }
             public string Sentiment;
             public QnASearchResultList Answer;
         }
@@ -138,18 +148,13 @@ namespace UnitTests
                 Rating = "There is a happy dog barking in the forground."
             };
 
-            string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog\", \"forground\"";
+            string answer = "Positive, 0.70, 0.10, 0.20, \"happy dog\", \"forground\"";
             Uri site = new Uri(url);
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
             var data = await response.Content.ReadAsStringAsync();
             //
             // Reading as a string instead of reading as a line leaves extra characters on the end, remove them.
-            var resultType = new
-            {
-                string Sentiment;
-                QnASearchResultList Answer;
-            };
             var result  = JsonConvert.DeserializeObject<CustomerSupportResponse>(data);
             string sentiment = result.Sentiment.Trim(new char[] { '\r', '\n' });
             Assert.AreEqual(answer, sentiment);
@@ -159,7 +164,7 @@ namespace UnitTests
         public async Task QuestionTest()
         {
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
-            var CustomerSupportRequest = new CustomerSupportRequest
+            CustomerSupportRequest test = new CustomerSupportRequest
             {
                 Question = "What perks do I get for shopping with you"
             };
@@ -168,20 +173,15 @@ namespace UnitTests
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
             var data = await response.Content.ReadAsStringAsync();
-            var resultType = new
-            {
-                string Sentiment;
-                QnASearchResultList Answer;
-            };
             //
             // Reading as a string instead of reading as a line leaves extra characters on the end, remove them.
             var result  = JsonConvert.DeserializeObject<CustomerSupportResponse>(data);
             Assert.IsNotNull(result);
 
-            var answer = result.Question.answer;
-            Assert.IsNotNull(answer.Answers);
-            Assert.AreEqual(1, answer.Answers.Count);
-            bool found = answer.Answers[0].Answer.Contains("Because you are important to us");
+            var answer = result.Question.Answers;
+            Assert.IsNotNull(answer);
+            Assert.AreEqual(1, answer.Count);
+            bool found = answer[0].Answer.Contains("Because you are important to us");
             Assert.IsTrue(found);
         }
 #endif
