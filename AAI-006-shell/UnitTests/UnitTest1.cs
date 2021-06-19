@@ -117,7 +117,7 @@ namespace UnitTests
             return true;
         }
 #endif
-#if (LocalFunction)
+#if (CallFunctions)
 
         class CustomerSupportRequest
         {
@@ -149,7 +149,7 @@ namespace UnitTests
             };
 
             string answer = "Positive, 0.70, 0.10, 0.20, \"happy dog\", \"forground\"";
-            Uri site = new Uri(url);
+            Uri site = new Uri(url + "api/CustomerSupport");
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
             var data = await response.Content.ReadAsStringAsync();
@@ -169,7 +169,7 @@ namespace UnitTests
                 Question = "What perks do I get for shopping with you"
             };
 
-            Uri site = new Uri(url);
+            Uri site = new Uri(url + "api/CustomerSupport");
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
             var data = await response.Content.ReadAsStringAsync();
@@ -178,7 +178,7 @@ namespace UnitTests
             var result  = JsonConvert.DeserializeObject<CustomerSupportResponse>(data);
             Assert.IsNotNull(result);
 
-            var answer = result.Question.Answers;
+            var answer = result.Answer.Answers;
             Assert.IsNotNull(answer);
             Assert.AreEqual(1, answer.Count);
             bool found = answer[0].Answer.Contains("Because you are important to us");
