@@ -14,6 +14,55 @@ namespace Personalizer
     public class Tests
     {
 
+#if (CreateFAQ)
+        [TestMethod()]
+        public void CreateFAQ()
+        {
+            try
+            {
+                Task.Run(async () => { Assert.IsTrue(await CreateDatabase()); }).Wait();
+                Task.Run(async () => { Assert.IsTrue(await PublishDatabase()); }).Wait();
+                Console.WriteLine($"Knowledge base id: {service.KnowledgeBaseID}");
+                Task.Run(async() =>
+                {
+                    string queryString = await service.QueryKey();
+                    Console.WriteLine($"Query end point: {queryString}");
+                })
+                Console.WriteLine($"Query end point: {service.QueryEndpointKey}");
+            }
+            finally
+            {
+                Console.WriteLine("Created and published FAQ for Customer Support");
+            }
+        }
+        //
+        // Create QnA knowledge base.
+        // Will contain one Question and Answer, the answer has temporary text that will be removed in the update test.
+        private async Task<bool> CreateDatabase()
+        {
+            Guid name = Guid.NewGuid();
+            var create = new CreateKbDTO
+            {
+                Name = $"{name} Custom Support KB",
+                QnaList = QnAFile.LoadCSV("..\\..\\..\\..\\Data\\sample-faq.csv")
+            };
+
+            var (status, id) = await service.CreateQnA(create);
+            Assert.AreEqual(OperationStateType.Succeeded, status);
+            Assert.IsNotNull(id);
+            service.KnowledgeBaseID = id;
+            await service.Publish();
+            return true;
+        }
+        //
+        // Publish the QnA knowledge base.
+        private async Task<bool> PublishDatabase()
+        {
+            await service.Publish();
+            return true;
+        }
+#endif
+
 #if TestService
 
         [TestMethod]

@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PersonalizerService\PersonalizerService.csproj" />
-    <ProjectReference Include="..\Personalizer\Personalizer.csproj" />
+    <ProjectReference Include="..\QnA\QnA.csproj" />
   </ItemGroup>
 
 </Project>
