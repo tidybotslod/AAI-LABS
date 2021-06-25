@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.CognitiveServices.Personalizer;
 using Microsoft.Azure.CognitiveServices.Personalizer.Models;
-
+using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
 using AAI;
 
 namespace Personalizer
@@ -13,6 +13,23 @@ namespace Personalizer
     [TestClass]
     public class Tests
     {
+
+        private static QnAService service;
+
+        [AssemblyInitialize]
+        public static void AssemblyInit(TestContext context)
+        {
+            IConfiguration config; // Load configuration data found in appsettings.json, need Azure authoring key and resource name to build URL to azure.
+            config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+            service = new QnAService
+            {
+                AuthoringKey = ConfigurationValue(config, "AuthoringKey"),
+                ResourceName = ConfigurationValue(config, "ResourceName"),
+                ApplicationName = ConfigurationValue(config, "ApplicationName"),
+                KnowledgeBaseID = ConfigurationValue(config, "KnowledgeBaseID"),
+                QueryEndpointKey = ConfigurationValue(config, "QueryEndpointKey")
+            };
+        }
 
 #if (CreateFAQ)
         [TestMethod()]
