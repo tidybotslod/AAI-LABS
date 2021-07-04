@@ -7,7 +7,7 @@ using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker;
 namespace AAI
 {
     /// <summary>
-    /// Manage a connection to a knowledge base. 
+    /// Manage a connection to a Azure QnAMaker service and the knowledge base for the QnA. 
     /// </summary>
     public partial class QnAService
     {

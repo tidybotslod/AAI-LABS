@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.CognitiveServices.Personalizer;
@@ -23,11 +25,11 @@ namespace Personalizer
             config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
             service = new QnAService
             {
-                AuthoringKey = ConfigurationValue(config, "AuthoringKey"),
-                ResourceName = ConfigurationValue(config, "ResourceName"),
-                ApplicationName = ConfigurationValue(config, "ApplicationName"),
-                KnowledgeBaseID = ConfigurationValue(config, "KnowledgeBaseID"),
-                QueryEndpointKey = ConfigurationValue(config, "QueryEndpointKey")
+                AuthoringKey = GetConfigString(config, "AuthoringKey"),
+                ResourceName = GetConfigString(config, "ResourceName"),
+                ApplicationName = GetConfigString(config, "ApplicationName"),
+                KnowledgeBaseID = GetConfigString(config, "KnowledgeBaseID"),
+                QueryEndpointKey = GetConfigString(config, "QueryEndpointKey")
             };
         }
 
@@ -44,8 +46,7 @@ namespace Personalizer
                 {
                     string queryString = await service.QueryKey();
                     Console.WriteLine($"Query end point: {queryString}");
-                })
-                Console.WriteLine($"Query end point: {service.QueryEndpointKey}");
+                }).Wait();
             }
             finally
             {

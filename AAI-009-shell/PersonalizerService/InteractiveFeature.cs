@@ -2,10 +2,20 @@ using System.Text;
 
 namespace AAI
 {
-    public class InteractiveFeature : PersonalizationFeature
+    /// <summary>
+    /// Used to display a feature on the console when an interactive training session takes place.
+    /// </summary>
+    internal class InteractiveFeature : PersonalizationFeature
     {
-        public InteractiveFeature(PersonalizationFeature feature) : base(feature) {}
-        public string InteractivePrompt
+     /// <summary>
+     /// Create a console prompt for a personalizer feature based on its possible settings. Use this class when doing console based user interaction such as training.
+     /// </summary>
+     /// <param name="feature"></param>
+     internal InteractiveFeature(PersonalizationFeature feature) : base(feature) {}
+        /// <summary>
+        /// Return a prompt for selecting one of the entries of a feature.
+        /// </summary>
+        internal string InteractivePrompt
         {
             get
             {
@@ -19,8 +29,12 @@ namespace AAI
                 return interactivePrompt;
             }
         }
-
-        // Private methods, not publicly accessible.
+        /// <summary>
+        /// Use a feature's entries to create an enumerated list, the list is returned as a string.
+        /// </summary>
+        /// <param name="prompt"></param>
+        /// <param name="entries"></param>
+        /// <returns>string containing an enumerated list of entries</returns>
         static private string BuildPrompt(string prompt, string[] entries)
         {
             StringBuilder ask = new StringBuilder($"{prompt} (enter number or Q to quit)?", 256);
@@ -34,7 +48,6 @@ namespace AAI
             }
             return ask.ToString();
         }
-        // Private members
         private string interactivePrompt;
     }
 }

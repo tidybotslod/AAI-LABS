@@ -10,9 +10,6 @@ namespace AAI
     public partial class QnAService
     {
 
-        //======================================
-        // Methods to be used only by QnAService
-        // Methods to be used only by QnAService
         private QnAMakerClient? azureEndpoint;         // Access to qna service endpoint in azure (see azure portal)
         private QnAMakerRuntimeClient? qnaEndpoint;    // Access to qna maker service endpoint (see www.qnamaker.ai)
 

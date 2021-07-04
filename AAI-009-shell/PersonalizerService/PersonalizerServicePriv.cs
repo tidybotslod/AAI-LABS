@@ -33,37 +33,18 @@ namespace AAI
     /// </summary>
     public partial class PersonalizerService
     {
-        /// <summary>
-        /// Constructo for PersonalizerService
-        /// </summary>
-        /// <param name="endpointKey">Security key for Asure Personalizer service</param>
-        /// <param name="endpointResourceName">Resource name for Asure Personalizer srevice</param>
-        public PersonalizerService(string endpointKey, string endpointResourceName)
-        {
-            personalizerEndpointKey = endpointKey;
-            personalizerResourceName = endpointResourceName;
-        }
+
 
         /// <summary>
         /// Actions that are Ranked.
         /// </summary>
-        public List<RankableAction> Actions { get; set; }
+        internal List<RankableAction> Actions { get; set; }
 
-        /// <summary>
-        /// The Azure Peronsalizer client object, used to rank and reward actons.
-        /// </summary>
-        public PersonalizerClient Client
-        {
-            get
-            {
-                return client ?? CreatePersonalizer();
-            }
-        }
 
         /// <summary>
         /// List of features used to define the context for the ranking actions.
         /// </summary>
-        public PersonalizationFeature[] Features
+        internal PersonalizationFeature[] Features
         {
             get
             {
@@ -83,83 +64,6 @@ namespace AAI
                 Lookup = lookup;
             }
         }
-
-        /// <summary>
-        /// Interatively asks for feature values to rank the actions. Rewards based on whether the returned action is the one the user expected.
-        /// </summary>
-        /// <param name="select">Features to use in selection process</param>
-        /// <param name="ignore">List of actions to ignore</param>
-        public void InteractiveTraining(string[] select, string[] ignore)
-        {
-            if (Actions == null || Actions.Count == 0)
-            {
-                Console.WriteLine("Nothing to select.");
-                return;
-            }
-
-            if (select == null || select.Length == 0)
-            {
-                Console.WriteLine("No features selected.");
-                return;
-            }
-
-            int lessonCount = 1;
-            do
-            {
-                Console.WriteLine($"Lesson {lessonCount++}");
-
-                // Build context list by creating a JSON string and then convert it to a list of objects.
-                string[] answers = new string[select.Length];
-                for (int i = 0; i < select.Length; i++)
-                {
-                    answers[i] = SelectFeatureInteractively(select[i]);
-                    if (answers[i] == "Q")
-                    {
-                        // When null is returned the training session is over.
-                        return;
-                    }
-                }
-                IList<Object> contextFeatures = FeatureList(select, answers);
-
-                // Create an id for this lesson, used when setting the reward.
-                string lessonId = Guid.NewGuid().ToString();
-
-                // Create a list of Personalizer.Actions that should be excluded from the ranking
-                List<string> excludeActions = null;
-                if (ignore != null && ignore.Length > 0)
-                {
-                    excludeActions = new List<string>(ignore);
-                }
-
-                // Create the rank requestr
-                var request = new RankRequest(Actions, contextFeatures, excludeActions, lessonId, false);
-                RankResponse response = null;
-                response = Client.Rank(request);
-                //response = new RankResponse();
-                Console.WriteLine($"Personalizer service thinks you would like to have: {response.RewardActionId}. Is this correct (y/n)?");
-
-                string answer = GetKey();
-                Console.WriteLine();
-                double reward = 0.0;
-                if (answer == "Y")
-                {
-                    reward = 1.0;
-                    Client.Reward(response.EventId, new RewardRequest(reward));
-                    Console.WriteLine($"Set reward: {reward}");
-                }
-                else if (answer == "N")
-                {
-                    Client.Reward(response.EventId, new RewardRequest(reward));
-                    Console.WriteLine($"Set reward: {reward}");
-                }
-                else
-                {
-                    Console.WriteLine("Entered choice is invalid. Not setting reward.");
-                }
-            } while (true);
-        }
-
-
         // Private helper methods and data.
         private PersonalizerClient CreatePersonalizer()
         {
