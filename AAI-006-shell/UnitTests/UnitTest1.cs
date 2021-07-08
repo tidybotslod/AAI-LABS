@@ -82,8 +82,7 @@ namespace UnitTests
                 {
                     string queryString = await service.QueryKey();
                     Console.WriteLine($"Query end point: {queryString}");
-                })
-                Console.WriteLine($"Query end point: {service.QueryEndpointKey}");
+                }).Wait();
             }
             finally
             {
