@@ -6,13 +6,13 @@
           "files": [
             "**.csproj"
           ],
-          "src": "E:\\AAI-LABS\\AAI-009-shell\\QnA"
+          "src": "..\\QnA"
         },
         {
           "files": [
             "**.csproj"
           ],
-          "src": "E:\\AAI-LABS\\AAI-009-shell\\PersonalizerService"
+          "src": "..\\PersonalizerService"
         }
       ],
       "dest": "api",
