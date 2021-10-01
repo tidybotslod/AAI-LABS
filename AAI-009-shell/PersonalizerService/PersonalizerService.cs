@@ -39,40 +39,6 @@ namespace AAI
         }
 
         /// <summary>
-        /// Train a personalizer service using a set of features and an expected result.
-        /// </summary>
-        /// <param name="cases"></param>
-        /// <example>
-        /// Load a JSON training file and submit for training.
-        /// <code>
-        /// string input = File.ReadAllText(trainingFile);
-        /// if (input != null &amp;&amp; input.Length &gt; 0)
-        /// {
-        ///      TrainingCase[] trainingData = JsonSerializer.Deserialize&lt;TrainingCase[]&gt;(input);
-        ///      Personalizer.Train(trainingData);
-        /// }
-        ///</code>
-        ///</example>
-        ///
-        public void Train(TrainingCase[] cases)
-        {
-            if (cases != null)
-            {
-                foreach (TrainingCase trainingCase in cases)
-                {
-                    string lessonId = Guid.NewGuid().ToString();
-                    var request = new RankRequest(Actions, trainingCase.Features, trainingCase.Exclude, lessonId, false);
-                    RankResponse response = Client.Rank(request);
-                    double reward = 0.0;
-                    if (response.RewardActionId.Equals(trainingCase.Expected))
-                    {
-                        reward = 1.0;
-                    }
-                    Client.Reward(response.EventId, new RewardRequest(reward));
-                }
-            }
-        }
-        /// <summary>
         /// The Azure Peronsalizer client object, used to rank and reward actons. (https://docs.microsoft.com/en-us/python/api/azure-cognitiveservices-personalizer/azure.cognitiveservices.personalizer.personalizer_client.personalizerclient?view=azure-python)
         /// </summary>
         /// <value>
@@ -159,6 +125,60 @@ namespace AAI
                     Console.WriteLine("Entered choice is invalid. Not setting reward.");
                 }
             } while (true);
+        }
+        public IList<object> FeatureList(string[] select, string[] answers)
+        {
+            if ((select == null || select.Length == 0) ||
+                (answers == null || answers.Length == 0) ||
+                (answers.Length != select.Length))
+            {
+                return null;
+            }
+
+            InteractiveFeature feature = LookupFeature(select[0]);
+            StringBuilder contextFeaturesJson = new StringBuilder("[");
+            contextFeaturesJson.Append($"{{ \"{feature.Name}\": \"{answers[0]}\" }}");
+            for (int i = 1; i < select.Length; i++)
+            {
+                feature = LookupFeature(select[i]);
+                contextFeaturesJson.Append($",{{ \"{feature.Name}\": \"{answers[i]}\" }}");
+            }
+            contextFeaturesJson.Append("]");
+            return JsonSerializer.Deserialize<List<object>>(contextFeaturesJson.ToString());
+        }
+    }
+    /// <summary>
+    /// Train a personalizer service using a set of features and an expected result.
+    /// </summary>
+    /// <param name="cases"></param>
+    /// <example>
+    /// Load a JSON training file and submit for training.
+    /// <code>
+    /// string input = File.ReadAllText(trainingFile);
+    /// if (input != null &amp;&amp; input.Length &gt; 0)
+    /// {
+    ///      TrainingCase[] trainingData = JsonSerializer.Deserialize&lt;TrainingCase[]&gt;(input);
+    ///      Personalizer.Train(trainingData);
+    /// }
+    ///</code>
+    ///</example>
+    ///
+    public void Train(TrainingCase[] cases)
+    {
+        if (cases != null)
+        {
+            foreach (TrainingCase trainingCase in cases)
+            {
+                string lessonId = Guid.NewGuid().ToString();
+                var request = new RankRequest(Actions, trainingCase.Features, trainingCase.Exclude, lessonId, false);
+                RankResponse response = Client.Rank(request);
+                double reward = 0.0;
+                if (response.RewardActionId.Equals(trainingCase.Expected))
+                {
+                    reward = 1.0;
+                }
+                Client.Reward(response.EventId, new RewardRequest(reward));
+            }
         }
     }
 

@@ -5,11 +5,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>E:\AAI-LABS\AAI-009-shell\QnA\QnA.xml</DocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker" Version="2.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />

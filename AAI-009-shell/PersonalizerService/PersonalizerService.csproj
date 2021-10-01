@@ -4,10 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>E:\AAI-LABS\AAI-009-shell\PersonalizerService\PersonalizerService.xml</DocumentationFile>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Personalizer" Version="1.0.0" />
   </ItemGroup>
