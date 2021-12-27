@@ -2,7 +2,7 @@
   "profiles": {
     "Check": {
       "commandName": "Project",
-      "commandLineArgs": "-c C:\\Users\\Craig\\repos\\AAI-009\\UnitTests\\appsettings.json -t Test2"
+      "commandLineArgs": "-c D:\\LabFiles\\AAI-009\\UnitTests\\appsettings.json -t Test1 Test1a"
     }
   }
 }
