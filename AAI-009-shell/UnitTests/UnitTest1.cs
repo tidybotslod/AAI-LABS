@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.IO;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Configuration;
@@ -10,12 +13,13 @@ using Microsoft.Azure.CognitiveServices.Personalizer.Models;
 using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
 using AAI;
 
-namespace Personalizer
+namespace CustomerChatTests
 {
     [TestClass]
     public class Tests
     {
-
+        private static string LocalUrl;
+        private static string RemoteUrl;
         private static QnAService service;
 
         [AssemblyInitialize]
@@ -31,6 +35,8 @@ namespace Personalizer
                 KnowledgeBaseID = GetConfigString(config, "KnowledgeBaseID"),
                 QueryEndpointKey = GetConfigString(config, "QueryEndpointKey")
             };
+            LocalUrl = GetConfigString(config, "LocalUrl");
+            RemoteUrl = GetConfigString(config, "RemoteUrl");
         }
 
 #if (CreateFAQ)
@@ -45,7 +51,7 @@ namespace Personalizer
                 Task.Run(async() =>
                 {
                     string queryString = await service.QueryKey();
-                    Console.WriteLine($"Query end point: {queryString}");
+                    Console.WriteLine($"Query end point key: {queryString}");
                 }).Wait();
             }
             finally
@@ -80,7 +86,20 @@ namespace Personalizer
             return true;
         }
 #endif
-
+#if TestLocalCustomerChat
+        [TestMethod]
+        public async Task TestLocalCustomerChat()
+        {
+            await PostToCustomerChat(LocalUrl);
+        }
+#endif
+#if TestRemoteCustomerChat
+        [TestMethod]
+        public async Task TestRemoteCustomerChat()
+        {
+            await PostToCustomerChat(RemoteUrl);
+        }
+#endif
 #if TestService
 
         [TestMethod]
@@ -196,5 +215,115 @@ namespace Personalizer
             RankResponse resp = personalizer.Client.Rank(request);
             Assert.AreEqual("salad", resp.RewardActionId);
         }
+
+        class CustomerRatingPost
+        {
+            public string Id { get; set; }
+            public double Rank { get; set; }
+        }
+
+        class CustomerChatRequest
+        {
+            public String Question { get; set; }
+            public List<object> Suggest { get; set; }
+            public CustomerRatingPost Rating { get; set; }
+        }
+
+        // Ugh, redeclare the response to get around deserialization issue. RankResponse is
+        // declared with getters only since the properties are readonly. This breaks deserialization
+        // using 'System.Text.Json'. RankResponse has a hack for Newtonsoft which does not work for
+        // system implementation.
+        public class TestRankResponse
+        {
+            public TestRankResponse() { }
+            public IList<RankedAction> Ranking { get; set;  }
+            public string EventId { get; set;  }
+            public string RewardActionId { get; set; }
+        }
+
+        class CustomerChatResponse
+        {
+            public string Error { get; set; }
+            public QnASearchResultList Answer { get; set; }
+            public TestRankResponse Result { get; set; }
+        }
+
+        public async Task PostToCustomerChat(string url)
+        {
+            string functionUrl = url + "/api/CustomerChat";
+            await PostToQnA(functionUrl);
+            await PostToPersonalizer(functionUrl);
+        }
+        public async Task PostToQnA(string functionUrl)
+        {
+            CustomerChatRequest post = new CustomerChatRequest();
+            post.Question = "How can I track my orders ?";
+            post.Suggest = null;
+            post.Rating = null;
+            string s = JsonSerializer.Serialize(post);
+            Console.WriteLine(s);
+            try
+            {
+                var client = new HttpClient();
+                var response = await client.PostAsync(functionUrl, new StringContent(JsonSerializer.Serialize(post)));
+                var data = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    CustomerChatResponse resp = JsonSerializer.Deserialize<CustomerChatResponse>(data);
+                    Assert.IsNull(resp.Error);
+                    Assert.AreEqual(null, resp.Result);
+                    Assert.AreEqual(1, resp.Answer.Answers.Count);
+                    Assert.AreEqual(5, resp.Answer.Answers[0].Id);
+                }
+                catch (Exception jsonException)
+                {
+                    Console.WriteLine("Got unexpected data back from function.");
+                    Console.WriteLine(data);
+                    Assert.IsNull(jsonException);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"ERROR connecting to {functionUrl}");
+                Assert.AreEqual(null, e);
+            }
+        }
+        public async Task PostToPersonalizer(string functionUrl)
+        {
+            CustomerChatRequest post = new CustomerChatRequest();
+            post.Question = null;
+            post.Suggest = new List<object> {
+                new { texture = "Smooth" },
+                new { style = "Modern" }
+            };
+            post.Rating = null;
+            string s = JsonSerializer.Serialize(post);
+            Console.WriteLine(s);
+            try
+            {
+                var client = new HttpClient();
+                var response = await client.PostAsync(functionUrl, new StringContent(JsonSerializer.Serialize(post)));
+                var data = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    CustomerChatResponse resp = JsonSerializer.Deserialize<CustomerChatResponse>(data);
+                    Assert.IsNull(resp.Error);
+                    Assert.IsNull(resp.Answer);
+                    Assert.IsTrue(resp.Result.Ranking.Count > 0);
+                }
+                catch (Exception jsonException)
+                {
+                    Console.WriteLine("Got unexpected data back from function.");
+                    Console.WriteLine(data);
+                    Assert.AreEqual(null, jsonException);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"ERROR connecting to {functionUrl}");
+                Assert.AreEqual(null, e);
+            }
+        }
     }
+
 }
