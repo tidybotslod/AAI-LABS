@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Check": {
+      "commandName": "Project",
+      "commandLineArgs": "-c C:\\Users\\Craig\\repos\\AAI-009\\UnitTests\\appsettings.json -t Test2"
+    }
+  }
+}
