@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
 using Microsoft.Azure.CognitiveServices.Personalizer;
 using Microsoft.Azure.CognitiveServices.Personalizer.Models;
 
@@ -10,6 +12,19 @@ namespace AAI
     /// </summary>
     public partial class PersonalizerService
     {
+        /// <summary>
+        /// Authoring key for the personalizer service hosted in Azure. 
+        /// </summary>
+        public String PersonalizerEndpointKey { set; get; }
+        /// <summary>
+        /// Endpoint resource name, used to construct the http address of the personalizer service hosted in Azure (e.g., https://{PersonalizerResourceName}.cognitiveservice.azure.com/... ).
+        /// </summary>
+        public String PersonalizerResourceName { set; get; }
+        /// <summary>
+        /// Constructor for Personalizer service, reqquires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
+        /// </summary>
+        public PersonalizerService()
+        { }
         /// <summary>
         /// Constructor for PersonalizerService, requires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
         /// The endpoint key and resource name can found from the App Service for the Personalizer via the Azure portal. These values are typically added
@@ -34,8 +49,8 @@ namespace AAI
         /// </example>
         public PersonalizerService(string endpointKey, string endpointResourceName)
         {
-            personalizerEndpointKey = endpointKey;
-            personalizerResourceName = endpointResourceName;
+            PersonalizerEndpointKey = endpointKey;
+            PersonalizerResourceName = endpointResourceName;
         }
 
         /// <summary>
@@ -99,7 +114,7 @@ namespace AAI
                     excludeActions = new List<string>(ignore);
                 }
 
-                // Create the rank requestr
+                // Create the rank requester
                 var request = new RankRequest(Actions, contextFeatures, excludeActions, lessonId, false);
                 RankResponse response = null;
                 response = Client.Rank(request);
@@ -126,6 +141,13 @@ namespace AAI
                 }
             } while (true);
         }
+        /// <summary>
+        /// Given an array of features and values for the features create a list suitable for the
+        /// personalizer service.
+        /// </summary>
+        /// <param name="select">Array of feature names</param>
+        /// <param name="answers">Array of values for each feature</param>
+        /// <returns>a generic List of objects that can be used when calling the personalizer service</returns>
         public IList<object> FeatureList(string[] select, string[] answers)
         {
             if ((select == null || select.Length == 0) ||
@@ -134,52 +156,48 @@ namespace AAI
             {
                 return null;
             }
-
-            InteractiveFeature feature = LookupFeature(select[0]);
             StringBuilder contextFeaturesJson = new StringBuilder("[");
-            contextFeaturesJson.Append($"{{ \"{feature.Name}\": \"{answers[0]}\" }}");
+            contextFeaturesJson.Append($"{{ \"{select[0]}\": \"{answers[0]}\" }}");
             for (int i = 1; i < select.Length; i++)
             {
-                feature = LookupFeature(select[i]);
-                contextFeaturesJson.Append($",{{ \"{feature.Name}\": \"{answers[i]}\" }}");
+                contextFeaturesJson.Append($",{{ \"{select[i]}\": \"{answers[i]}\" }}");
             }
             contextFeaturesJson.Append("]");
             return JsonSerializer.Deserialize<List<object>>(contextFeaturesJson.ToString());
         }
-    }
-    /// <summary>
-    /// Train a personalizer service using a set of features and an expected result.
-    /// </summary>
-    /// <param name="cases"></param>
-    /// <example>
-    /// Load a JSON training file and submit for training.
-    /// <code>
-    /// string input = File.ReadAllText(trainingFile);
-    /// if (input != null &amp;&amp; input.Length &gt; 0)
-    /// {
-    ///      TrainingCase[] trainingData = JsonSerializer.Deserialize&lt;TrainingCase[]&gt;(input);
-    ///      Personalizer.Train(trainingData);
-    /// }
-    ///</code>
-    ///</example>
-    ///
-    public void Train(TrainingCase[] cases)
-    {
-        if (cases != null)
+        /// <summary>
+        /// Train a personalizer service using a set of features and an expected result.
+        /// </summary>
+        /// <param name="cases"></param>
+        /// <example>
+        /// Load a JSON training file and submit for training.
+        /// <code>
+        /// string input = File.ReadAllText(trainingFile);
+        /// if (input != null &amp;&amp; input.Length &gt; 0)
+        /// {
+        ///      TrainingCase[] trainingData = JsonSerializer.Deserialize&lt;TrainingCase[]&gt;(input);
+        ///      Personalizer.Train(trainingData);
+        /// }
+        ///</code>
+        ///</example>
+        ///
+        public void Train(TrainingCase[] cases)
         {
-            foreach (TrainingCase trainingCase in cases)
+            if (cases != null)
             {
-                string lessonId = Guid.NewGuid().ToString();
-                var request = new RankRequest(Actions, trainingCase.Features, trainingCase.Exclude, lessonId, false);
-                RankResponse response = Client.Rank(request);
-                double reward = 0.0;
-                if (response.RewardActionId.Equals(trainingCase.Expected))
+                foreach (TrainingCase trainingCase in cases)
                 {
-                    reward = 1.0;
+                    string lessonId = Guid.NewGuid().ToString();
+                    var request = new RankRequest(Actions, trainingCase.Features, trainingCase.Exclude, lessonId, false);
+                    RankResponse response = Client.Rank(request);
+                    double reward = 0.0;
+                    if (response.RewardActionId.Equals(trainingCase.Expected))
+                    {
+                        reward = 1.0;
+                    }
+                    Client.Reward(response.EventId, new RewardRequest(reward));
                 }
-                Client.Reward(response.EventId, new RewardRequest(reward));
             }
         }
     }
-
 }

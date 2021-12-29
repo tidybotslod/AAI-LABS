@@ -42,6 +42,21 @@
             Service object that manages a connection to the Azure Personalizer for a set of Actions and Features. The action returned is based on past selections and rewards.
             </summary>
         </member>
+        <member name="P:AAI.PersonalizerService.PersonalizerEndpointKey">
+            <summary>
+            Authoring key for the personalizer service hosted in Azure. 
+            </summary>
+        </member>
+        <member name="P:AAI.PersonalizerService.PersonalizerResourceName">
+            <summary>
+            Endpoint resource name, used to construct the http address of the personalizer service hosted in Azure (e.g., https://{PersonalizerResourceName}.cognitiveservice.azure.com/... ).
+            </summary>
+        </member>
+        <member name="M:AAI.PersonalizerService.#ctor">
+            <summary>
+            Constructor for Personalizer service, reqquires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
+            </summary>
+        </member>
         <member name="M:AAI.PersonalizerService.#ctor(System.String,System.String)">
             <summary>
             Constructor for PersonalizerService, requires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
@@ -66,6 +81,31 @@
             </code>
             </example>
         </member>
+        <member name="P:AAI.PersonalizerService.Client">
+            <summary>
+            The Azure Peronsalizer client object, used to rank and reward actons. (https://docs.microsoft.com/en-us/python/api/azure-cognitiveservices-personalizer/azure.cognitiveservices.personalizer.personalizer_client.personalizerclient?view=azure-python)
+            </summary>
+            <value>
+            Instance of Azure SDK PersonalizerClient object 
+            </value>
+        </member>
+        <member name="M:AAI.PersonalizerService.InteractiveTraining(System.String[],System.String[])">
+            <summary>
+            Interatively asks for feature values to rank the actions. Rewards based on whether the returned action is the one the user expected.
+            Uses console input/output for training.
+            </summary>
+            <param name="select">Features to use in selection process</param>
+            <param name="ignore">List of actions to ignore</param>
+        </member>
+        <member name="M:AAI.PersonalizerService.FeatureList(System.String[],System.String[])">
+            <summary>
+            Given an array of features and values for the features create a list suitable for the
+            personalizer service.
+            </summary>
+            <param name="select">Array of feature names</param>
+            <param name="answers">Array of values for each feature</param>
+            <returns>a generic List of objects that can be used when calling the personalizer service</returns>
+        </member>
         <member name="M:AAI.PersonalizerService.Train(AAI.TrainingCase[])">
              <summary>
              Train a personalizer service using a set of features and an expected result.
@@ -84,22 +124,6 @@
             </example>
             
         </member>
-        <member name="P:AAI.PersonalizerService.Client">
-            <summary>
-            The Azure Peronsalizer client object, used to rank and reward actons. (https://docs.microsoft.com/en-us/python/api/azure-cognitiveservices-personalizer/azure.cognitiveservices.personalizer.personalizer_client.personalizerclient?view=azure-python)
-            </summary>
-            <value>
-            Instance of Azure SDK PersonalizerClient object 
-            </value>
-        </member>
-        <member name="M:AAI.PersonalizerService.InteractiveTraining(System.String[],System.String[])">
-            <summary>
-            Interatively asks for feature values to rank the actions. Rewards based on whether the returned action is the one the user expected.
-            Uses console input/output for training.
-            </summary>
-            <param name="select">Features to use in selection process</param>
-            <param name="ignore">List of actions to ignore</param>
-        </member>
         <member name="P:AAI.PersonalizerService.Actions">
             <summary>
             Actions that are Ranked.
@@ -108,6 +132,11 @@
         <member name="P:AAI.PersonalizerService.Features">
             <summary>
             List of features used to define the context for the ranking actions.
+            </summary>
+        </member>
+        <member name="F:AAI.PersonalizerService.features">
+            <summary>
+            Features are loaded from a JSON file, an interactive prompt is created that be displayed for a feature.
             </summary>
         </member>
         <member name="T:AAI.Extensions">

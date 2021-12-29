@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
 using Microsoft.Azure.CognitiveServices.Personalizer;
 using Microsoft.Azure.CognitiveServices.Personalizer.Models;
 
@@ -33,7 +31,6 @@ namespace AAI
     /// </summary>
     public partial class PersonalizerService
     {
-
 
         /// <summary>
         /// Actions that are Ranked.
@@ -67,31 +64,11 @@ namespace AAI
         // Private helper methods and data.
         private PersonalizerClient CreatePersonalizer()
         {
-            string Endpoint = $"https://{personalizerResourceName}.cognitiveservices.azure.com";
+            string Endpoint = $"https://{PersonalizerResourceName}.cognitiveservices.azure.com";
             client = new PersonalizerClient(
-             new ApiKeyServiceClientCredentials(personalizerEndpointKey))
+             new ApiKeyServiceClientCredentials(PersonalizerEndpointKey))
             { Endpoint = Endpoint };
             return client;
-        }
-        private IList<object> FeatureList(string[] select, string[] answers)
-        {
-            if ((select == null || select.Length == 0) ||
-                (answers == null || answers.Length == 0) ||
-                (answers.Length != select.Length))
-            {
-                return null;
-            }
-
-            InteractiveFeature feature = LookupFeature(select[0]);
-            StringBuilder contextFeaturesJson = new StringBuilder("[");
-            contextFeaturesJson.Append($"{{ \"{feature.Name}\": \"{answers[0]}\" }}");
-            for (int i = 1; i < select.Length; i++)
-            {
-                feature = LookupFeature(select[i]);
-                contextFeaturesJson.Append($",{{ \"{feature.Name}\": \"{answers[i]}\" }}");
-            }
-            contextFeaturesJson.Append("]");
-            return JsonSerializer.Deserialize<List<object>>(contextFeaturesJson.ToString());
         }
 
         private string GetKey()
@@ -144,9 +121,9 @@ namespace AAI
             } while (true);
         }
 
-
-        private string personalizerEndpointKey;
-        private string personalizerResourceName;
+        /// <summary>
+        /// Features are loaded from a JSON file, an interactive prompt is created that be displayed for a feature.
+        /// </summary>
         private PersonalizationFeature[] features;
         private PersonalizerClient client;
 
