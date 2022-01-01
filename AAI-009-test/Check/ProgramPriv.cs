@@ -48,7 +48,7 @@ namespace Check
             }
             return test;
         }
-        int Execute(string configFile, string[] tests)
+        int Execute(string configFile, bool print, string[] tests)
         {
             IConfiguration config = new ConfigurationBuilder().AddJsonFile(configFile, optional: false, reloadOnChange: true).Build();
             int returnValue = 0;
@@ -57,28 +57,37 @@ namespace Check
                 TestEntry run = testList[testName];
                 if (run != null)
                 {
-                    Console.WriteLine($"Test: {testName}");
+                    if (print)
+                    {
+                        Console.WriteLine($"Test: {testName}");
+                    }
                     Task.Run(async () => {
                         TestResult result = await run.Func(config);
                         if (result.Fault)
                         {
                             if (result.errors.Count > 0)
                             {
-                                Console.WriteLine("Errors:");
-                                foreach (string error in result.errors)
+                                if (print)
                                 {
-                                    Console.WriteLine(error);
+                                    Console.WriteLine("Errors:");
+                                    foreach (string error in result.errors)
+                                    {
+                                        Console.WriteLine(error);
+                                    }
                                 }
-                                returnValue = returnValue + result.errors.Count;
+                                returnValue += result.errors.Count;
                             }
                             if (result.exceptions.Count > 0)
                             {
-                                Console.WriteLine("Exceptions:");
-                                foreach (string exception in result.exceptions)
+                                if (print)
                                 {
-                                    Console.WriteLine(exception);
+                                    Console.WriteLine("Exceptions:");
+                                    foreach (string exception in result.exceptions)
+                                    {
+                                        Console.WriteLine(exception);
+                                    }
                                 }
-                                returnValue = returnValue + result.exceptions.Count;
+                                returnValue += result.exceptions.Count;
                             }
                         }
                     }).Wait();
@@ -108,12 +117,15 @@ namespace Check
                 new Option<bool>(
                     new string[] { "-l", "--list"},
                     description: "List tests."),
+                new Option<bool>(
+                    new string[] { "-p", "--print"},
+                    description: $"Print output from tests to console [defaults to: false"),
                 new Option<string[]>(
                     new string [] { "-t", "--tests" },
                     description: "Run tests, print out the results.")
             };
             rootCommand.Description = $"Test for {course}";
-            rootCommand.Handler = CommandHandler.Create<string, bool, string[]>((config, list, tests) =>
+            rootCommand.Handler = CommandHandler.Create<string, bool, bool, string[]>((config, list, print, tests) =>
             {
                 if (config == null)
                 {
@@ -126,7 +138,7 @@ namespace Check
                 }
                 else if (tests.Length > 0)
                 {
-                    returnCode += p.Execute(config, tests);
+                    returnCode += p.Execute(config, print, tests);
                 }
                 else
                 {
