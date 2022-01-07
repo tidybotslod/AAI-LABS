@@ -31,13 +31,10 @@ namespace AAI
     /// </summary>
     public partial class PersonalizerService
     {
-
         /// <summary>
         /// Actions that are Ranked.
         /// </summary>
         internal List<RankableAction> Actions { get; set; }
-
-
         /// <summary>
         /// List of features used to define the context for the ranking actions.
         /// </summary>
@@ -70,15 +67,11 @@ namespace AAI
             { Endpoint = Endpoint };
             return client;
         }
-
         private string GetKey()
         {
             return Console.ReadKey().Key.ToString().Last().ToUpper();
         }
-
-
         private Dictionary<string, InteractiveFeature> Lookup { get; set; }
-
         private InteractiveFeature LookupFeature(string id)
         {
             InteractiveFeature result = null;
@@ -88,39 +81,6 @@ namespace AAI
             }
             return result;
         }
-
-        private  string SelectFeatureInteractively(string name)
-        {
-            InteractiveFeature feature = LookupFeature(name);
-            if (feature == null)
-            {
-                return null;
-            }
-
-            do
-            {
-                Console.WriteLine(feature.InteractivePrompt);
-                string entry = GetKey();
-                Console.WriteLine();
-                if (!int.TryParse(entry, out int index) || index < 1 || index > feature.Values.Length)
-                {
-                    if (entry.Length > 0 && entry[0] == 'Q')
-                    {
-                        return "Q";
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid selection!\n");
-                    }
-                }
-                else
-                {
-
-                    return feature.Values[index - 1];
-                }
-            } while (true);
-        }
-
         /// <summary>
         /// Features are loaded from a JSON file, an interactive prompt is created that be displayed for a feature.
         /// </summary>

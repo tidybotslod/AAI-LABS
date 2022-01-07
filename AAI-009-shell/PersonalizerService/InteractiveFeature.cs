@@ -37,7 +37,7 @@ namespace AAI
         /// <returns>string containing an enumerated list of entries</returns>
         static private string BuildPrompt(string prompt, string[] entries)
         {
-            StringBuilder ask = new StringBuilder($"{prompt} (enter number or Q to quit)?", 256);
+            StringBuilder ask = new StringBuilder($"{prompt} (enter number, I to ignore, or Q to quit)?", 256);
             if (entries.Length > 0)
             {
                 ask.Append($"\n1. {entries[0]}");

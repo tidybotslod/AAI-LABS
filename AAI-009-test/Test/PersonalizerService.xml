@@ -34,100 +34,6 @@
              or a specific time is not aggregatable information so cannot be a feature. 
             </summary>
         </member>
-        <member name="M:AAI.PersonalizationFeature.#ctor">
-            <summary>
-            Create empty feature, JSON serialization and deserialization is the primary purpose for this constructor.
-            </summary>
-        </member>
-        <member name="M:AAI.PersonalizationFeature.#ctor(AAI.PersonalizationFeature)">
-            <summary>
-            Copy construtor.
-            </summary>
-            <param name="other">Personalization feature to duplicate.</param>
-        </member>
-        <member name="P:AAI.PersonalizationFeature.Name">
-            <summary>
-            Name of the feature.
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizationFeature.Prompt">
-            <summary>
-            Prompt used to interactively choose one of the values.
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizationFeature.Values">
-            <summary>
-            List of values the feature can be. 
-            </summary>
-        </member>
-        <member name="T:AAI.PersonalizerRankedAction">
-            <summary>
-            Ugh, declare a duplicate of RankedAction to get around deserialization issue. RankedAction is
-            declared with getters making the properties readonly. This breaks deserialization
-            using 'System.Text.Json'. RankedAction has a hack for Newtonsoft which does not work for the
-            system implementation.
-            </summary>
-        </member>
-        <member name="M:AAI.PersonalizerRankedAction.#ctor">
-            <summary>
-            Required for serialization code (System.Text.Json)
-            </summary>
-        </member>
-        <member name="M:AAI.PersonalizerRankedAction.#ctor(System.String,System.Nullable{System.Double})">
-            <summary>
-            Constructor filling all fields.
-            </summary>
-            <param name="id">Action Id</param>
-            <param name="probability">Probability the action id is the correct action.</param>
-        </member>
-        <member name="M:AAI.PersonalizerRankedAction.#ctor(Microsoft.Azure.CognitiveServices.Personalizer.Models.RankedAction)">
-            <summary>
-            Constructor, allow conversion from the built in model. 
-            </summary>
-            <param name="model"></param>
-        </member>
-        <member name="P:AAI.PersonalizerRankedAction.Id">
-            <summary>
-            Action id.
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizerRankedAction.Probability">
-            <summary>
-            Propability the action id is the correct one.
-            </summary>
-        </member>
-        <member name="T:AAI.PersonalizerRankResponse">
-            <summary>
-            Ugh, declare a duplicate of RankResponse to get around deserialization issue. RankResponse is
-            declared with getters making the properties readonly. This breaks deserialization
-            using 'System.Text.Json'. RankResponse has a hack for Newtonsoft which does not work for the
-            system implementation.
-            </summary>
-        </member>
-        <member name="M:AAI.PersonalizerRankResponse.#ctor">
-            <summary>
-            Default constuctor, necessary for JSON serialization and deserialization.
-            </summary>
-        </member>
-        <member name="M:AAI.PersonalizerRankResponse.#ctor(Microsoft.Azure.CognitiveServices.Personalizer.Models.RankResponse)">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizerRankResponse.Ranking">
-            <summary>
-            A list of suggested actions, each is ranked.
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizerRankResponse.EventId">
-            <summary>
-            Id used to identify the request to the server for ranking.
-            </summary>
-        </member>
-        <member name="P:AAI.PersonalizerRankResponse.RewardActionId">
-            <summary>
-            The action id that is suggested by the personalizer.
-            </summary>
-        </member>
         <member name="T:AAI.PersonalizerService">
             <summary>
             Interacts with an Azure Personalizer Service
@@ -148,7 +54,7 @@
         </member>
         <member name="M:AAI.PersonalizerService.#ctor">
             <summary>
-            Constructor for Personalizer service, requires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
+            Constructor for Personalizer service, reqquires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
             </summary>
         </member>
         <member name="M:AAI.PersonalizerService.#ctor(System.String,System.String)">
@@ -182,37 +88,6 @@
             <value>
             Instance of Azure SDK PersonalizerClient object 
             </value>
-        </member>
-        <member name="M:AAI.PersonalizerService.AvailableFeatures">
-            <summary>
-            Get the features names, ex. "Texture", "
-            </summary>
-            <returns>Array of Feature names</returns>
-        </member>
-        <member name="M:AAI.PersonalizerService.LoadFeatures(System.String)">
-            <summary>
-            Load features from file containing JSON objects of the form:
-            [
-              {
-                "Name": "Location",
-                "Prompt": "What room is this for?",
-                "Values":     [
-                  "Living room",
-                  "Bedroom",
-                  "Family room",
-                  "Kitchen"
-                ]
-              }
-            ]
-            </summary>
-            <param name="featureFile">File name containing an array of JSON objects</param>
-        </member>
-        <member name="M:AAI.PersonalizerService.SelectFeatureInteractively(System.String)">
-            <summary>
-            The users selects a value from the list defined for the feature. The features must be preloaded and the feature must exist otherwise null is returned.
-            </summary>
-            <param name="name">Feature name</param>
-            <returns>selected value, "I" to ignore, "Q" to Quit, null as error</returns>
         </member>
         <member name="M:AAI.PersonalizerService.InteractiveTraining(System.String[],System.String[])">
             <summary>

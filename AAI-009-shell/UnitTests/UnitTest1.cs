@@ -229,23 +229,11 @@ namespace CustomerChatTests
             public CustomerRatingPost Rating { get; set; }
         }
 
-        // Ugh, redeclare the response to get around deserialization issue. RankResponse is
-        // declared with getters only since the properties are readonly. This breaks deserialization
-        // using 'System.Text.Json'. RankResponse has a hack for Newtonsoft which does not work for
-        // system implementation.
-        public class TestRankResponse
-        {
-            public TestRankResponse() { }
-            public IList<RankedAction> Ranking { get; set;  }
-            public string EventId { get; set;  }
-            public string RewardActionId { get; set; }
-        }
-
         class CustomerChatResponse
         {
             public string Error { get; set; }
             public QnASearchResultList Answer { get; set; }
-            public TestRankResponse Result { get; set; }
+            public PersonalizerRankResponse Result { get; set; }
         }
 
         public async Task PostToCustomerChat(string url)

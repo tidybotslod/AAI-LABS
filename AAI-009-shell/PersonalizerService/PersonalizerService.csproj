@@ -8,5 +8,4 @@
     <PackageReference Include="Microsoft.Azure.CognitiveServices.Personalizer" Version="1.0.0" />
   </ItemGroup>
 
-</Project> 
-
+</Project>

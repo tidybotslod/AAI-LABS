@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.CognitiveServices.Personalizer;
@@ -21,7 +22,7 @@ namespace AAI
         /// </summary>
         public String PersonalizerResourceName { set; get; }
         /// <summary>
-        /// Constructor for Personalizer service, reqquires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
+        /// Constructor for Personalizer service, requires the endpoint key and resource name to be set prior to accessing the Azure Personalizer service.
         /// </summary>
         public PersonalizerService()
         { }
@@ -52,7 +53,6 @@ namespace AAI
             PersonalizerEndpointKey = endpointKey;
             PersonalizerResourceName = endpointResourceName;
         }
-
         /// <summary>
         /// The Azure Peronsalizer client object, used to rank and reward actons. (https://docs.microsoft.com/en-us/python/api/azure-cognitiveservices-personalizer/azure.cognitiveservices.personalizer.personalizer_client.personalizerclient?view=azure-python)
         /// </summary>
@@ -65,6 +65,89 @@ namespace AAI
             {
                 return client ?? CreatePersonalizer();
             }
+        }
+        /// <summary>
+        /// Get the features names, ex. "Texture", "
+        /// </summary>
+        /// <returns>Array of Feature names</returns>
+        public string[] AvailableFeatures()
+        {
+            var keys = Lookup.Keys;
+            if(keys.Count == 0)
+            {
+                return null;
+            }
+            var result = new String[keys.Count];
+            keys.CopyTo(result, 0);
+            return result;
+        }
+        /// <summary>
+        /// Load features from file containing JSON objects of the form:
+        /// [
+        ///   {
+        ///     "Name": "Location",
+        ///     "Prompt": "What room is this for?",
+        ///     "Values":     [
+        ///       "Living room",
+        ///       "Bedroom",
+        ///       "Family room",
+        ///       "Kitchen"
+        ///     ]
+        ///   }
+        /// ]
+        /// </summary>
+        /// <param name="featureFile">File name containing an array of JSON objects</param>
+        public void LoadFeatures(string featureFile)
+        {
+            try
+            {
+                string input = File.ReadAllText(featureFile);
+                if (input != null && input.Length > 0)
+                {
+                    Features = JsonSerializer.Deserialize<List<PersonalizationFeature>>(input).ToArray();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+        /// <summary>
+        /// The users selects a value from the list defined for the feature. The features must be preloaded and the feature must exist otherwise null is returned.
+        /// </summary>
+        /// <param name="name">Feature name</param>
+        /// <returns>selected value, "I" to ignore, "Q" to Quit, null as error</returns>
+        public string SelectFeatureInteractively(string name)
+        {
+            InteractiveFeature feature = LookupFeature(name);
+            if (feature == null)
+            {
+                return null;
+            }
+
+            do
+            {
+                Console.WriteLine(feature.InteractivePrompt);
+                string entry = GetKey();
+                Console.WriteLine();
+                if (!int.TryParse(entry, out int index) || index < 1 || index > feature.Values.Length)
+                {
+
+                    if (entry[0] == 'Q' || entry[0] == 'q')
+                    {
+                        return "Q";
+                    }
+                    else if (entry[0] == 'I' || entry[0] == 'I')
+                    {
+                        return "I";
+                    }
+                    Console.WriteLine("Invalid selection!\n");
+                }
+                else
+                {
+                    return feature.Values[index - 1];
+                }
+            } while (true);
         }
         /// <summary>
         /// Interatively asks for feature values to rank the actions. Rewards based on whether the returned action is the one the user expected.
@@ -120,7 +203,6 @@ namespace AAI
                 response = Client.Rank(request);
                 //response = new RankResponse();
                 Console.WriteLine($"Personalizer service thinks you would like to have: {response.RewardActionId}. Is this correct (y/n)?");
-
                 string answer = GetKey();
                 Console.WriteLine();
                 double reward = 0.0;

@@ -144,6 +144,10 @@ namespace Check
                 {
                     rootCommand.Invoke("--help");
                 }
+                if (print)
+                {
+                    Console.WriteLine($"Return code: {returnCode}");
+                }
             });
             rootCommand.Invoke(args);
             return returnCode;
