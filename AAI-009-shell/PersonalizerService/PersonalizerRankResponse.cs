@@ -18,6 +18,7 @@ namespace AAI
 		/// </summary>
 		public PersonalizerRankResponse() { }
 		/// <summary>
+		/// Duplicate a RankResponse
 		/// </summary>
 		public PersonalizerRankResponse(RankResponse modelResponse)
         {

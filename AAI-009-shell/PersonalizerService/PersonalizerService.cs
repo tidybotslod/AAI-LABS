@@ -83,6 +83,7 @@ namespace AAI
         }
         /// <summary>
         /// Load features from file containing JSON objects of the form:
+        /// <code>
         /// [
         ///   {
         ///     "Name": "Location",
@@ -95,6 +96,14 @@ namespace AAI
         ///     ]
         ///   }
         /// ]
+        /// </code>
+        /// <example>
+        /// Load a JSON feature file
+        /// <code>
+        /// PersonalizerService Personalizer = new ();
+        /// Personalizer.LoadFeatures(@"D:\LabFiles\AAI-009\Data\Features.json");
+        ///</code>
+        ///</example>
         /// </summary>
         /// <param name="featureFile">File name containing an array of JSON objects</param>
         public void LoadFeatures(string featureFile)
@@ -113,10 +122,11 @@ namespace AAI
             }
         }
         /// <summary>
-        /// The users selects a value from the list defined for the feature. The features must be preloaded and the feature must exist otherwise null is returned.
+        /// The users selects a value from the list defined for the feature passed in. The features must be preloaded and the feature must exist otherwise null is returned.
+        /// The function will return the index the user selected, "I" if the user wants to ignore this feature, or "Q" if they are done selecting features. 
         /// </summary>
         /// <param name="name">Feature name</param>
-        /// <returns>selected value, "I" to ignore, "Q" to Quit, null as error</returns>
+        /// <returns>selected value, "I", "Q", or null</returns>
         public string SelectFeatureInteractively(string name)
         {
             InteractiveFeature feature = LookupFeature(name);

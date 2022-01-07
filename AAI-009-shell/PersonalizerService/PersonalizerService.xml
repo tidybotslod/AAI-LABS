@@ -111,6 +111,7 @@
         </member>
         <member name="M:AAI.PersonalizerRankResponse.#ctor(Microsoft.Azure.CognitiveServices.Personalizer.Models.RankResponse)">
             <summary>
+            Duplicate a RankResponse
             </summary>
         </member>
         <member name="P:AAI.PersonalizerRankResponse.Ranking">
@@ -190,29 +191,39 @@
             <returns>Array of Feature names</returns>
         </member>
         <member name="M:AAI.PersonalizerService.LoadFeatures(System.String)">
-            <summary>
-            Load features from file containing JSON objects of the form:
-            [
-              {
-                "Name": "Location",
-                "Prompt": "What room is this for?",
-                "Values":     [
-                  "Living room",
-                  "Bedroom",
-                  "Family room",
-                  "Kitchen"
-                ]
-              }
-            ]
-            </summary>
-            <param name="featureFile">File name containing an array of JSON objects</param>
+             <summary>
+             Load features from file containing JSON objects of the form:
+             <code>
+             [
+               {
+                 "Name": "Location",
+                 "Prompt": "What room is this for?",
+                 "Values":     [
+                   "Living room",
+                   "Bedroom",
+                   "Family room",
+                   "Kitchen"
+                 ]
+               }
+             ]
+             </code>
+             <example>
+             Load a JSON feature file
+             <code>
+             PersonalizerService Personalizer = new ();
+             Personalizer.LoadFeatures(@"D:\LabFiles\AAI-009\Data\Features.json");
+            </code>
+            </example>
+             </summary>
+             <param name="featureFile">File name containing an array of JSON objects</param>
         </member>
         <member name="M:AAI.PersonalizerService.SelectFeatureInteractively(System.String)">
             <summary>
-            The users selects a value from the list defined for the feature. The features must be preloaded and the feature must exist otherwise null is returned.
+            The users selects a value from the list defined for the feature passed in. The features must be preloaded and the feature must exist otherwise null is returned.
+            The function will return the index the user selected, "I" if the user wants to ignore this feature, or "Q" if they are done selecting features. 
             </summary>
             <param name="name">Feature name</param>
-            <returns>selected value, "I" to ignore, "Q" to Quit, null as error</returns>
+            <returns>selected value, "I", "Q", or null</returns>
         </member>
         <member name="M:AAI.PersonalizerService.InteractiveTraining(System.String[],System.String[])">
             <summary>
