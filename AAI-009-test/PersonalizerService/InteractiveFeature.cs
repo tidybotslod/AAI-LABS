@@ -3,12 +3,12 @@ using System.Text;
 namespace AAI
 {
     /// <summary>
-    /// Used to display a feature on the console when an interactive training session takes place.
+    /// Display a feature on the console when an interactive training session takes place.
     /// </summary>
     internal class InteractiveFeature : PersonalizationFeature
     {
      /// <summary>
-     /// Create a console prompt for a personalizer feature based on its possible settings. Use this class when doing console based user interaction such as training.
+     /// Create a console prompt for a personalizer feature based on its possible settings. This class is used during interaction with a user in a console during activities such as training.
      /// </summary>
      /// <param name="feature"></param>
      internal InteractiveFeature(PersonalizationFeature feature) : base(feature) {}
