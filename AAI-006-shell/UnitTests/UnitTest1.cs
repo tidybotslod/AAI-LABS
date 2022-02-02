@@ -57,7 +57,7 @@ namespace UnitTests
         public void PerformSentimentTest()
         {
             string input = "The quick brown fox jumps over the lazy dog";
-            string answer = "Negative, 0.00, 0.99, 0.01, \"quick brown fox jumps\", \"lazy dog\"" ;
+            string answer = "Negative, 0.00, 0.99, 0.01, \"quick brown fox\", \"lazy dog\"" ;
             using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
             {
                 System.IO.StreamWriter writer = new System.IO.StreamWriter(memory, Console.OutputEncoding);
@@ -144,10 +144,10 @@ namespace UnitTests
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
             CustomerSupportRequest test = new CustomerSupportRequest
             {
-                Rating = "There is a happy dog barking in the forground."
+                Rating = "There is a happy dog barking in the foreground."
             };
 
-            string answer = "Positive, 0.70, 0.10, 0.20, \"happy dog\", \"forground\"";
+            string answer = "Neutral, 0.28, 0.06, 0.66, \"happy dog\", \"foreground\"";
             Uri site = new Uri(url + "api/CustomerSupport");
             var client = new HttpClient();
             var response = await client.PostAsync(site, new StringContent(JsonConvert.SerializeObject(test), System.Text.Encoding.UTF8, "application/json"));
@@ -165,7 +165,7 @@ namespace UnitTests
             //string url = "<remote function site - from portal>/api/CustomerSupportService";
             CustomerSupportRequest test = new CustomerSupportRequest
             {
-                Question = "What perks do I get for shopping with you"
+                Question = "What perks do I get for shopping with you?"
             };
 
             Uri site = new Uri(url + "api/CustomerSupport");
