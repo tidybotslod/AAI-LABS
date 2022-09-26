@@ -25,7 +25,6 @@ namespace AAI
             return source.Substring(source.Length - numberOfChars);
         }
     }
-
     /// <summary>
     /// Service object that manages a connection to the Azure Personalizer for a set of Actions and Features. The action returned is based on past selections and rewards.
     /// </summary>
@@ -86,9 +85,5 @@ namespace AAI
         /// </summary>
         private PersonalizationFeature[] features;
         private PersonalizerClient client;
-
     }
-
 }
-
-
