@@ -12,6 +12,7 @@ using Microsoft.Azure.CognitiveServices.Personalizer;
 using Microsoft.Azure.CognitiveServices.Personalizer.Models;
 using Microsoft.Azure.CognitiveServices.Knowledge.QnAMaker.Models;
 using AAI;
+using chat;
 
 namespace CustomerChatTests
 {
